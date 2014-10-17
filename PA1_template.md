@@ -1,13 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
 
-```{r loaddata,echo=TRUE}
+
+```r
 # load "data.table" to use fread
 library(data.table) 
 
@@ -50,16 +46,31 @@ activity$date <- as.Date(activity$date, "%Y-%m-%d")
 
 1. Make a histogram of the total number of steps taken each day
 
-```{r histsteps}
+
+```r
 dailysteps <- aggregate(steps ~ date, data=activity, FUN=sum)
 barplot(dailysteps$steps, names.arg=dailysteps$date, xlab="date", ylab="steps")
 ```
 
+![](./PA1_template_files/figure-html/histsteps-1.png) 
+
 2. Calculate and report the **mean** and **median** total number of steps taken per day
 
-```{r calcmeanmedian}
+
+```r
 mean(dailysteps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(dailysteps$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -68,16 +79,24 @@ median(dailysteps$steps)
    interval (x-axis) and the average number of steps taken, averaged
    across all days (y-axis)
 
-```{r intervalactivity}
+
+```r
 intervalactivity <- aggregate(steps ~ interval, data=activity, FUN=mean)
 plot(intervalactivity, type="l")
 ```
 
+![](./PA1_template_files/figure-html/intervalactivity-1.png) 
+
 2. Which 5-minute interval, on average across all the days in the
    dataset, contains the maximum number of steps?
 
-```{r maxintervalactivity}
+
+```r
 intervalactivity$interval[which.max(intervalactivity$steps)]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -85,8 +104,13 @@ intervalactivity$interval[which.max(intervalactivity$steps)]
 1. Calculate and report the total number of missing values in the
    dataset (i.e. the total number of rows with `NA`s)
 
-```{r sumnas}
+
+```r
 sum(is.na(activity))
+```
+
+```
+## [1] 2304
 ```
 
 2. Devise a strategy for filling in all of the missing values in the
@@ -99,7 +123,8 @@ The means of the associate 5-minute intervals will be used to fill missing value
 3. Create a new dataset that is equal to the original dataset but with
    the missing data filled in.
 
-```{r fillmissingvalues}
+
+```r
 activity <- merge(activity, intervalactivity, by="interval", suffixes=c("",".y"))
 na_values <- is.na(activity$steps)
 activity$steps[na_values] <- activity$steps.y[na_values]
@@ -111,11 +136,28 @@ activity$steps[na_values] <- activity$steps.y[na_values]
    the first part of the assignment? What is the impact of imputing
    missing data on the estimates of the total daily number of steps?
 
-```{r rehiststeps}
+
+```r
 dailysteps <- aggregate(steps ~ date, data=activity, FUN=sum)
 barplot(dailysteps$steps, names.arg=dailysteps$date, xlab="date", ylab="steps")
+```
+
+![](./PA1_template_files/figure-html/rehiststeps-1.png) 
+
+```r
 mean(dailysteps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(dailysteps$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 The impact of imputing missing data on the estimates of the total daily number of steps seems to be unsignificantly low.
@@ -126,7 +168,8 @@ The impact of imputing missing data on the estimates of the total daily number o
    "weekday" and "weekend" indicating whether a given date is a
    weekday or weekend day.
 
-```{r daytype, cache=TRUE}
+
+```r
 daytype <- function(date) {
     if (weekdays(as.Date(date)) %in% c("Saturday", "Sunday")) {
         "weekend"
@@ -142,7 +185,8 @@ activity$daytype <- as.factor(sapply(activity$date, daytype))
    taken, averaged across all weekday days or weekend days
    (y-axis).
 
-```{r panelplot,fig.height=8}
+
+```r
 par(mfrow=c(2,1))
 for (type in c("weekend", "weekday")) {
     activitytype <- aggregate(steps ~ interval,
@@ -152,3 +196,5 @@ for (type in c("weekend", "weekday")) {
     plot(activitytype, type="l", main=type)
 }
 ```
+
+![](./PA1_template_files/figure-html/panelplot-1.png) 
